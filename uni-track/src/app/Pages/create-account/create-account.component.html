@@ -1,0 +1,88 @@
+﻿<main class="page">
+  <mat-card class="card" aria-labelledby="page-title">
+    <p class="brand">UniTrack</p>
+    <h1 id="page-title">Create your account</h1>
+    <p class="intro">Enter your details to get started.</p>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <div class="fields">
+        <div class="field">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Username</mat-label>
+            <input matInput id="userName" formControlName="userName" autocomplete="username">
+          </mat-form-field>
+          @if (form.controls.userName.touched) {
+            @if (form.controls.userName.hasError('required')) { <span class="error">Username is required.</span> }
+            @if (form.controls.userName.hasError('minlength')) { <span class="error">Username must be at least 3 characters long.</span> }
+            @if (form.controls.userName.hasError('maxlength')) { <span class="error">Username must not exceed 50 characters.</span> }
+            @if (form.controls.userName.hasError('pattern')) { <span class="error">Username can only contain letters, numbers, dots, hyphens, and underscores.</span> }
+          }
+        </div>
+        <div class="field">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Email</mat-label>
+            <input matInput id="email" type="email" formControlName="email" autocomplete="email">
+          </mat-form-field>
+          @if (form.controls.email.touched && form.controls.email.hasError('required')) { <span class="error">Email is required.</span> }
+          @if (form.controls.email.touched && form.controls.email.hasError('pattern')) { <span class="error">A valid email address is required.</span> }
+          @if (form.controls.email.touched && form.controls.email.hasError('maxlength')) { <span class="error">Email must not exceed 256 characters.</span> }
+        </div>
+        <div class="field">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Given name</mat-label>
+            <input matInput id="givenName" formControlName="givenName" autocomplete="given-name">
+          </mat-form-field>
+          @if (form.controls.givenName.touched && (form.controls.givenName.hasError('required') || form.controls.givenName.hasError('pattern'))) { <span class="error">Given name is required.</span> }
+          @if (form.controls.givenName.touched && form.controls.givenName.hasError('maxlength')) { <span class="error">Given name must not exceed 100 characters.</span> }
+        </div>
+        <div class="field">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Surname</mat-label>
+            <input matInput id="surname" formControlName="surname" autocomplete="family-name">
+          </mat-form-field>
+          @if (form.controls.surname.touched && (form.controls.surname.hasError('required') || form.controls.surname.hasError('pattern'))) { <span class="error">Surname is required.</span> }
+          @if (form.controls.surname.touched && form.controls.surname.hasError('maxlength')) { <span class="error">Surname must not exceed 100 characters.</span> }
+        </div>
+        <div class="field full-width">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Phone number</mat-label>
+            <input matInput id="phoneNumber" type="tel" formControlName="phoneNumber" autocomplete="tel">
+          </mat-form-field>
+          @if (form.controls.phoneNumber.touched && form.controls.phoneNumber.hasError('required')) { <span class="error">Phone number is required.</span> }
+          @if (form.controls.phoneNumber.touched && form.controls.phoneNumber.hasError('pattern')) { <span class="error">A valid phone number is required.</span> }
+        </div>
+        <div class="field">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Password</mat-label>
+            <input matInput id="password" type="password" formControlName="password" autocomplete="new-password">
+          </mat-form-field>
+          @if (form.controls.password.touched) {
+            @if (form.controls.password.hasError('required') || form.controls.password.hasError('pattern')) { <span class="error">Password is required.</span> }
+            @if (form.controls.password.hasError('minlength')) { <span class="error">Password must be at least 8 characters long.</span> }
+            @if (form.controls.password.hasError('maxlength')) { <span class="error">Password must not exceed 128 characters.</span> }
+            @if (form.controls.password.hasError('uppercase')) { <span class="error">Password must contain at least one uppercase letter.</span> }
+            @if (form.controls.password.hasError('lowercase')) { <span class="error">Password must contain at least one lowercase letter.</span> }
+            @if (form.controls.password.hasError('digit')) { <span class="error">Password must contain at least one digit.</span> }
+          }
+        </div>
+        <div class="field">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Confirm password</mat-label>
+            <input matInput id="passwordAgain" type="password" formControlName="passwordAgain" autocomplete="new-password">
+          </mat-form-field>
+          @if (form.controls.passwordAgain.touched && form.controls.passwordAgain.invalid) { <span class="error">Password confirmation is required.</span> }
+          @else if (form.controls.passwordAgain.touched && form.controls.password.value !== form.controls.passwordAgain.value) { <span class="error">Passwords must match.</span> }
+        </div>
+      </div>
+      @if (success) { <p class="success" role="status">Account created successfully.</p> }
+      @if (error) {
+        <div class="error" role="alert">
+          @if (serverErrors.length) {
+            @for (message of serverErrors; track $index) { <p>{{ message }}</p> }
+          } @else { <p>Could not create your account. Please try again.</p> }
+        </div>
+      }
+      <button mat-flat-button color="primary" type="submit" [disabled]="submitting">{{ submitting ? 'Creating account…' : 'Create account' }}</button>
+    </form>
+  </mat-card>
+</main>

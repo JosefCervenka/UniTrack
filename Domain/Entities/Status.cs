@@ -1,7 +1,3 @@
 ﻿namespace Domain;
 
-public class Status : CodeListEntity
-{
-    
-}
-
+public class Status : CodeListEntity;

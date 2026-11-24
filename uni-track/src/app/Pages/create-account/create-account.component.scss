@@ -1,0 +1,50 @@
+﻿:host {
+  display: block;
+  font-family: Arial, sans-serif;
+  color: #17243b;
+}
+
+.page {
+  min-height: 100vh;
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  padding: 2rem 1rem;
+  background: #f2f5fa;
+}
+
+.card {
+  width: min(100%, 620px);
+  box-sizing: border-box;
+  padding: 2rem;
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 12px 40px #17243b14;
+}
+
+.brand {
+  color: #365bd6;
+  font-weight: 700;
+  margin: 0 0 1.5rem;
+}
+
+h1 {
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+.intro {
+  color: #59677b;
+  margin: .5rem 0 1.75rem;
+}
+
+button {
+  width: 100%;
+  margin-top: 1.5rem;
+}
+
+@media (max-width: 520px) {
+  .card {
+    padding: 1.5rem;
+  }
+}
