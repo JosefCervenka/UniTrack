@@ -1,3 +1,4 @@
+using Application.Middlewares;
 using Application.Services;
 using Application.Validations;
 using FluentValidation;
@@ -8,11 +9,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddValidatorsFromAssemblyContaining<CreateUserValidator>();
 
-
 builder.Services.AddControllers();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddSingleton<HashService>();
 builder.Services.AddSingleton<JwtService>();
+
+builder.Services.AddScoped<ValidationMiddleware>();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
                        ?? throw new InvalidOperationException("Not fount connection string 'DefaultConnection'.");
@@ -39,10 +41,9 @@ if (builder.Configuration.GetValue<bool>("StartAngular"))
     app.Lifetime.ApplicationStopping.Register(angularDevServer.Stop);
 }
 
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
+app.UseMiddleware<ValidationMiddleware>();
+app.UseAuthorization();
+app.UseAuthorization();
 
 app.UseHttpsRedirection();
 app.MapControllers();

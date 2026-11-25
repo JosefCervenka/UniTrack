@@ -27,9 +27,9 @@ public class UserService
 
     public async Task<string> Login(LoginUser loginUser)
     {
-        loginUser.Email = loginUser.Email.ToLower().Trim();
+        loginUser.Email = loginUser.Email?.Trim().ToLower() ?? string.Empty;
         await _loginValidator.ValidateAndThrowAsync(loginUser);
-        return await _jwtService.GenerateToken(loginUser.Email, "USER");
+        return  _jwtService.GenerateToken(loginUser.Email, "USER");
     }
 
     public async Task CreateUser(CreateUser createUser)

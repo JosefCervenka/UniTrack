@@ -17,6 +17,20 @@ public class UserController : ControllerBase
         _userService = userService;
     }
 
+    [HttpPost("/api/user/logout")]
+    public async Task<IActionResult> Logout()
+    {
+        try
+        {
+            HttpContext.Response.Cookies.Delete("jwt");
+            return Ok();
+        }
+        catch (Exception e)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred");
+        }
+    }
+
     [HttpPost("/api/user")]
     public async Task<IActionResult> CreateUser([FromBody] CreateUser user)
     {
@@ -30,18 +44,23 @@ public class UserController : ControllerBase
         }
         catch
         {
-            return BadRequest("An unexpected error occurred");
+            return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred");
         }
 
         return Created();
     }
 
-    [HttpGet("/api/user/login")]
-    public async Task<IActionResult> Login(LoginUser loginUser)
+    [HttpPost("/api/user/login")]
+    public async Task<IActionResult> Login([FromBody] LoginUser loginUser)
     {
         try
         {
-            await _userService.Login(loginUser);
+            var token = await _userService.Login(loginUser);
+            HttpContext.Response.Cookies.Append("jwt", token, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true
+            });
         }
         catch (ValidationException e)
         {
@@ -49,7 +68,7 @@ public class UserController : ControllerBase
         }
         catch
         {
-            return BadRequest("An unexpected error occurred");
+            return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred");
         }
 
         return Ok();

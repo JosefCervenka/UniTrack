@@ -1,1 +1,24 @@
-﻿<router-outlet></router-outlet>
+﻿<div class="shell">
+  <header class="header">
+    <div class="header-inner">
+      <a class="brand" routerLink="/">UniTrack</a>
+
+      <nav class="nav" aria-label="Main navigation">
+        @if (userService.isLoggedIn()) {
+          <button mat-stroked-button type="button" (click)="logout()">Log out</button>
+        } @else {
+          <a mat-button routerLink="/login" routerLinkActive="active" ariaCurrentWhenActive="page">Sign in</a>
+          <a mat-flat-button color="primary" routerLink="/create-account" routerLinkActive="active" ariaCurrentWhenActive="page">Create account</a>
+        }
+      </nav>
+    </div>
+  </header>
+
+  <div class="content">
+    <router-outlet></router-outlet>
+  </div>
+
+  <footer class="footer">
+    <p>&copy; {{ year }} UniTrack</p>
+  </footer>
+</div>

@@ -16,35 +16,42 @@ public class JwtService
     {
         _issuer = configuration["Jwt:Issuer"] ?? throw new InvalidOperationException("Jwt:Issuer is required.");
         _audience = configuration["Jwt:Audience"] ?? throw new InvalidOperationException("Jwt:Audience is required.");
-        var secret = configuration["Jwt:SigningKey"] ?? throw new InvalidOperationException("Jwt:SigningKey is required.");
-        
+        var secret = configuration["Jwt:Secret"] ?? throw new InvalidOperationException("Jwt:Secret is required.");
+
         _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
     }
 
-    public async Task<string> GenerateToken(string email, string role)
+    public string GenerateToken(string email, string role)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(email);
         ArgumentException.ThrowIfNullOrWhiteSpace(role);
 
+        var claims = new[]
+        {
+            new Claim(ClaimTypes.Email, email),
+            new Claim(ClaimTypes.Role, role)
+        };
+
         var jwt = new JwtSecurityToken(
             issuer: _issuer,
             audience: _audience,
-            claims: [new Claim(ClaimTypes.Email, email), new Claim(ClaimTypes.Role, role)],
+            claims: claims,
             expires: DateTime.UtcNow.AddHours(1),
             signingCredentials: new SigningCredentials(_key, SecurityAlgorithms.HmacSha256));
 
         var tokenHandler = new JwtSecurityTokenHandler();
-        return await Task.Run(() => tokenHandler.WriteToken(jwt));
+        return tokenHandler.WriteToken(jwt);
     }
 
-    public async Task<bool> ValidateToken(string token)
+    public async Task<ClaimsPrincipal?> ValidateToken(string token)
     {
-        if (string.IsNullOrWhiteSpace(token)) 
-            return false;
+        if (string.IsNullOrWhiteSpace(token))
+            return null;
 
         try
         {
-            var result = await new JwtSecurityTokenHandler().ValidateTokenAsync(token, new TokenValidationParameters
+            var handler = new JwtSecurityTokenHandler();
+            var result = await handler.ValidateTokenAsync(token, new TokenValidationParameters
             {
                 ValidateIssuer = true,
                 ValidIssuer = _issuer,
@@ -57,11 +64,15 @@ public class JwtService
                 RequireExpirationTime = true,
                 ClockSkew = TimeSpan.Zero
             });
-            return result.IsValid;
+
+            if (!result.IsValid || result.ClaimsIdentity is null)
+                return null;
+
+            return new ClaimsPrincipal(result.ClaimsIdentity);
         }
         catch (Exception)
         {
-            return false;
+            return null;
         }
     }
 }
