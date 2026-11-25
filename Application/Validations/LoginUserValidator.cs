@@ -1,7 +1,7 @@
 ﻿using Application.Dtos;
-using FluentValidation;
 using Application.Services;
 using Domain;
+using FluentValidation;
 using Infrastructure.Contexts;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,12 +13,22 @@ public class LoginUserValidator : AbstractValidator<LoginUser>
     {
         RuleFor(x => x.Email)
             .NotEmpty().WithMessage("Email is required.")
+                .WithErrorCode("400")
+                .WithState(x => new { HttpStatus = 400, Field = nameof(x.Email), Reason = "Required" })
             .EmailAddress().WithMessage("A valid email address is required.")
-            .MaximumLength(256).WithMessage("Email must not exceed 256 characters.");
+                .WithErrorCode("400")
+                .WithState(x => new { HttpStatus = 400, Field = nameof(x.Email), Reason = "InvalidEmail" })
+            .MaximumLength(256).WithMessage("Email must not exceed 256 characters.")
+                .WithErrorCode("400")
+                .WithState(x => new { HttpStatus = 400, Field = nameof(x.Email), Reason = "MaxLength" });
 
         RuleFor(x => x.Password)
             .NotEmpty().WithMessage("Password is required.")
-            .MaximumLength(128).WithMessage("Password must not exceed 128 characters.");
+                .WithErrorCode("400")
+                .WithState(x => new { HttpStatus = 400, Field = nameof(x.Password), Reason = "Required" })
+            .MaximumLength(128).WithMessage("Password must not exceed 128 characters.")
+                .WithErrorCode("400")
+                .WithState(x => new { HttpStatus = 400, Field = nameof(x.Password), Reason = "MaxLength" });
 
         RuleFor(x => x)
             .MustAsync(async (login, cancellationToken) =>
@@ -28,7 +38,9 @@ public class LoginUserValidator : AbstractValidator<LoginUser>
             })
             .When(x => !string.IsNullOrWhiteSpace(x.Email) && x.Email.Length <= 256 &&
                        !string.IsNullOrEmpty(x.Password) && x.Password.Length <= 128)
-            .WithMessage("Invalid email or password.");
+            .WithMessage("Invalid email or password.")
+                .WithErrorCode("401")
+                .WithState(x => new { HttpStatus = 401, Field = nameof(LoginUser), Reason = "InvalidCredentials" });
     }
 
     private static Task<User?> FindUserByEmailAsync(AppDbContext context, string email,

@@ -1,12 +1,13 @@
 ﻿using Application.Dtos;
 using Application.Services;
+using Backend.Adapters;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Controllers;
 
+[ApiController]
 public class UserController : ControllerBase
 {
     private readonly UserService _userService;
@@ -24,7 +25,11 @@ public class UserController : ControllerBase
         {
             return Ok(await _userService.GetCurrentUser());
         }
-        catch (Exception e)
+        catch (UnauthorizedAccessException)
+        {
+            return Unauthorized("User is not authorized.");
+        }
+        catch
         {
             return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred");
         }
@@ -32,14 +37,14 @@ public class UserController : ControllerBase
 
     [Authorize]
     [HttpPost("/api/user/logout")]
-    public async Task<IActionResult> Logout()
+    public IActionResult Logout()
     {
         try
         {
             HttpContext.Response.Cookies.Delete("jwt");
             return Ok();
         }
-        catch (Exception e)
+        catch
         {
             return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred");
         }
@@ -52,17 +57,16 @@ public class UserController : ControllerBase
         try
         {
             await _userService.CreateUser(user);
+            return Created();
         }
         catch (ValidationException e)
         {
-            return BadRequest(e.Errors.Select(error => error.ErrorMessage));
+            return ErrorAdapter.ToActionResult(e);
         }
         catch
         {
             return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred");
         }
-
-        return Created();
     }
 
     [AllowAnonymous]
@@ -77,16 +81,15 @@ public class UserController : ControllerBase
                 HttpOnly = true,
                 Secure = true
             });
+            return Ok();
         }
         catch (ValidationException e)
         {
-            return BadRequest(e.Errors.Select(error => error.ErrorMessage));
+            return ErrorAdapter.ToActionResult(e);
         }
         catch
         {
             return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred");
         }
-
-        return Ok();
     }
 }

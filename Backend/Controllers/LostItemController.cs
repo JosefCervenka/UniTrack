@@ -1,14 +1,15 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Formats.Asn1;
-using Application.Dtos;
+﻿using Application.Dtos;
 using Application.Services;
+using Backend.Adapters;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Controllers;
 
+[ApiController]
 public class LostItemController : ControllerBase
 {
-    LostItemService _lostItemService;
+    private readonly LostItemService _lostItemService;
 
     public LostItemController(LostItemService lostItemService)
     {
@@ -21,18 +22,18 @@ public class LostItemController : ControllerBase
         try
         {
             await _lostItemService.UpdateAsync(updateLostItem);
-            return Created();
+            return NoContent();
         }
         catch (ValidationException e)
         {
-            return BadRequest(e.Message);
+            return ErrorAdapter.ToActionResult(e);
         }
-        catch (Exception e)
+        catch
         {
             return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred");
         }
     }
-    
+
     [HttpPost("/api/lost-items")]
     public async Task<IActionResult> CreateAsync([FromForm] CreateLostItem createLostItem)
     {
@@ -43,9 +44,9 @@ public class LostItemController : ControllerBase
         }
         catch (ValidationException e)
         {
-            return BadRequest(e.Message);
+            return ErrorAdapter.ToActionResult(e);
         }
-        catch (Exception e)
+        catch
         {
             return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred");
         }

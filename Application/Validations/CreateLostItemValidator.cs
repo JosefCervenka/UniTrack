@@ -14,20 +14,36 @@ public class CreateLostItemValidator : AbstractValidator<CreateLostItem>
 
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Item name is required.")
-            .MaximumLength(150).WithMessage("Item name must not exceed 150 characters.");
+                .WithErrorCode("400")
+                .WithState(x => new { HttpStatus = 400, Field = nameof(x.Name), Reason = "Required" })
+            .MaximumLength(150).WithMessage("Item name must not exceed 150 characters.")
+                .WithErrorCode("400")
+                .WithState(x => new { HttpStatus = 400, Field = nameof(x.Name), Reason = "MaxLength" });
 
         RuleFor(x => x.Description)
             .NotEmpty().WithMessage("Item description is required.")
-            .MaximumLength(1000).WithMessage("Item description must not exceed 1000 characters.");
+                .WithErrorCode("400")
+                .WithState(x => new { HttpStatus = 400, Field = nameof(x.Description), Reason = "Required" })
+            .MaximumLength(1000).WithMessage("Item description must not exceed 1000 characters.")
+                .WithErrorCode("400")
+                .WithState(x => new { HttpStatus = 400, Field = nameof(x.Description), Reason = "MaxLength" });
 
         RuleFor(x => x.LostLocation)
             .NotEmpty().WithMessage("Lost location is required.")
-            .MaximumLength(300).WithMessage("Lost location must not exceed 300 characters.");
+                .WithErrorCode("400")
+                .WithState(x => new { HttpStatus = 400, Field = nameof(x.LostLocation), Reason = "Required" })
+            .MaximumLength(300).WithMessage("Lost location must not exceed 300 characters.")
+                .WithErrorCode("400")
+                .WithState(x => new { HttpStatus = 400, Field = nameof(x.LostLocation), Reason = "MaxLength" });
 
         RuleFor(x => x.Image)
             .Must(img => img is null || img.Length > 0)
-            .WithMessage("Image cannot be empty.")
+                .WithMessage("Image cannot be empty.")
+                .WithErrorCode("400")
+                .WithState(x => new { HttpStatus = 400, Field = nameof(x.Image), Reason = "EmptyFile" })
             .Must(img => img is null || img.Length <= 5 * 1024 * 1024)
-            .WithMessage("Image size must not exceed 5 MB.");
+                .WithMessage("Image size must not exceed 5 MB.")
+                .WithErrorCode("400")
+                .WithState(x => new { HttpStatus = 400, Field = nameof(x.Image), Reason = "FileTooLarge" });
     }
 }

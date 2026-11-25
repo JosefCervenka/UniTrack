@@ -1,9 +1,8 @@
 import {computed, Injectable, signal} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {firstValueFrom, Observable} from 'rxjs';
 import {LoginUser} from '../Models/login-user';
 import {ReadUser} from '../Models/read-user';
 import {CreateUser} from '../Models/create-user';
+import {ApiValidationError} from '../Models/error-model';
 
 @Injectable({
   providedIn: 'root'
@@ -14,22 +13,44 @@ export class UserServiceService {
   readonly currentUser = this.loginUser.asReadonly();
   readonly isLoggedIn = computed(() => this.loginUser() !== null);
 
-  constructor(private http: HttpClient) {
+  constructor() {
     void this.loadCurrentUser();
   }
 
-  createUser(user: CreateUser): Observable<string> {
-    return this.http.post('/api/user', user, {responseType: 'text'});
+  async createUser(user: CreateUser): Promise<ApiValidationError[] | void> {
+    const response = await fetch('/api/user', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      credentials: 'include',
+      body: JSON.stringify(user)
+    });
+
+    if (!response.ok) {
+      return await this.extractErrors(response);
+    }
   }
 
-  async login(user: LoginUser): Promise<void> {
-    await firstValueFrom(this.http.post('/api/user/login', user, {responseType: 'text'}));
+  async login(user: LoginUser): Promise<ApiValidationError[] | void> {
+    const response = await fetch('/api/user/login', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      credentials: 'include',
+      body: JSON.stringify(user)
+    });
+
+    if (!response.ok) {
+      return await this.extractErrors(response);
+    }
+
     await this.loadCurrentUser();
   }
 
   async logout(): Promise<void> {
     try {
-      await firstValueFrom(this.http.post('/api/user/logout', null, {responseType: 'text'}));
+      await fetch('/api/user/logout', {
+        method: 'POST',
+        credentials: 'include'
+      });
     } finally {
       this.loginUser.set(null);
     }
@@ -37,9 +58,39 @@ export class UserServiceService {
 
   private async loadCurrentUser(): Promise<void> {
     try {
-      this.loginUser.set(await firstValueFrom(this.http.get<ReadUser>('/api/user/current')));
+      const response = await fetch('/api/user/current', {
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        this.loginUser.set(null);
+        return;
+      }
+
+      const current: ReadUser = await response.json();
+      this.loginUser.set(current);
     } catch {
       this.loginUser.set(null);
     }
+  }
+
+  private async extractErrors(response: Response): Promise<ApiValidationError[]> {
+    try {
+      const data: unknown = await response.json();
+      if (Array.isArray(data)) {
+        return data as ApiValidationError[];
+      }
+    } catch {
+      console.error('Response was not valid JSON');
+    }
+
+    return [
+      {
+        field: '',
+        message: response.statusText || `Request failed (${response.status})`,
+        errorCode: response.status,
+        state: null
+      }
+    ];
   }
 }

@@ -1,4 +1,4 @@
-﻿<mat-card>
+﻿﻿<mat-card>
   <mat-card-header>
     <mat-card-title>Create your account</mat-card-title>
   </mat-card-header>
@@ -8,37 +8,66 @@
       <mat-form-field appearance="outline">
         <mat-label>Username</mat-label>
         <input matInput name="userName" [(ngModel)]="model.userName" required />
+        @if (fieldError('userName'); as msg) {
+          <mat-hint class="error-msg">{{ msg }}</mat-hint>
+        }
       </mat-form-field>
 
       <mat-form-field appearance="outline">
         <mat-label>Email</mat-label>
         <input matInput type="email" name="email" [(ngModel)]="model.email" required />
+        @if (fieldError('email'); as msg) {
+          <mat-hint class="error-msg">{{ msg }}</mat-hint>
+        }
       </mat-form-field>
 
       <mat-form-field appearance="outline">
         <mat-label>Given name</mat-label>
         <input matInput name="givenName" [(ngModel)]="model.givenName" required />
+        @if (fieldError('givenName'); as msg) {
+          <mat-hint class="error-msg">{{ msg }}</mat-hint>
+        }
       </mat-form-field>
 
       <mat-form-field appearance="outline">
         <mat-label>Surname</mat-label>
         <input matInput name="surname" [(ngModel)]="model.surname" required />
+        @if (fieldError('surname'); as msg) {
+          <mat-hint class="error-msg">{{ msg }}</mat-hint>
+        }
       </mat-form-field>
 
       <mat-form-field appearance="outline">
         <mat-label>Phone number</mat-label>
         <input matInput type="tel" name="phoneNumber" [(ngModel)]="model.phoneNumber" required />
+        @if (fieldError('phoneNumber'); as msg) {
+          <mat-hint class="error-msg">{{ msg }}</mat-hint>
+        }
       </mat-form-field>
 
       <mat-form-field appearance="outline">
         <mat-label>Password</mat-label>
         <input matInput type="password" name="password" [(ngModel)]="model.password" required />
+        @if (fieldError('password'); as msg) {
+          <mat-hint class="error-msg">{{ msg }}</mat-hint>
+        }
       </mat-form-field>
 
       <mat-form-field appearance="outline">
         <mat-label>Confirm password</mat-label>
         <input matInput type="password" name="passwordAgain" [(ngModel)]="model.passwordAgain" required />
+        @if (fieldError('passwordAgain'); as msg) {
+          <mat-hint class="error-msg">{{ msg }}</mat-hint>
+        }
       </mat-form-field>
+
+      @if (generalError(); as msg) {
+        <p class="error-msg form-message">{{ msg }}</p>
+      }
+
+      @if (success()) {
+        <p class="success-msg form-message">Account created. You can now log in.</p>
+      }
 
       <button mat-flat-button type="submit">Create account</button>
     </form>

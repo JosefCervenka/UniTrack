@@ -61,3 +61,15 @@ button[type="submit"] {
     padding: 1.25rem;
   }
 }
+.error-msg {
+  color: var(--mat-sys-error, #b3261e);
+}
+
+.success-msg {
+  color: #1b7f3b;
+}
+
+.form-message {
+  grid-column: 1 / -1;
+  margin: 0;
+}
