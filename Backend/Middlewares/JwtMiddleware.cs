@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Http;
 
 namespace Application.Middlewares;
 
-public class ValidationMiddleware : IMiddleware
+public class JwtMiddleware : IMiddleware
 {
     private readonly JwtService _jwtService;
     
-    public ValidationMiddleware(JwtService jwtService)
+    public JwtMiddleware(JwtService jwtService)
     {
         _jwtService = jwtService;
     }

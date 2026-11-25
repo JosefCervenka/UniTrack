@@ -9,11 +9,9 @@ namespace Application.Services;
 
 public class LostItemService
 {
-    AppDbContext _context;
-
-    IValidator<CreateLostItem> _createLostItemValidator;
-    IValidator<UpdateLostItem> _updateLostItemValidator;
-
+    private readonly AppDbContext _context;
+    private readonly IValidator<CreateLostItem> _createLostItemValidator;
+    private readonly IValidator<UpdateLostItem> _updateLostItemValidator;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public LostItemService(AppDbContext context, IValidator<CreateLostItem> createLostItemValidator,

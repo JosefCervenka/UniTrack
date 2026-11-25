@@ -11,4 +11,21 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     public DbSet<Status> Status { get; set; }
     public DbSet<User> User { get; set; }
+    
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.HasPostgresExtension("vector");
+
+        modelBuilder.Entity<LostItem>(entity =>
+        {
+            entity.Property(x => x.Embedding)
+                .HasColumnType("vector(384)");
+            
+            entity.HasIndex(x => x.Embedding)
+                .HasMethod("hnsw")
+                .HasOperators("vector_cosine_ops");
+        });
+    }
 }

@@ -15,10 +15,12 @@ public class UserService
     private readonly HashService _hashService;
     private readonly JwtService _jwtService;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly EmbeddingService _embeddingService;
 
 
     public UserService(AppDbContext context, IValidator<CreateUser> userCreateValidator, HashService hashService,
-        JwtService jwtService, IValidator<LoginUser> loginValidator, IHttpContextAccessor httpContextAccessor)
+        JwtService jwtService, IValidator<LoginUser> loginValidator, IHttpContextAccessor httpContextAccessor,
+        EmbeddingService embeddingService)
     {
         _context = context;
         _userCreateValidator = userCreateValidator;
@@ -26,12 +28,15 @@ public class UserService
         _hashService = hashService;
         _jwtService = jwtService;
         _httpContextAccessor = httpContextAccessor;
+        _embeddingService = embeddingService;
     }
 
     public async Task<string> Login(LoginUser loginUser)
     {
         loginUser.Email = loginUser.Email?.Trim().ToLower() ?? string.Empty;
+        
         await _loginValidator.ValidateAndThrowAsync(loginUser);
+        
         return  _jwtService.GenerateToken(loginUser.Email, "USER");
     }
 
