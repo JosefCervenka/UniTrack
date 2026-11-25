@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Controllers;
 
-[AllowAnonymous]
 public class UserController : ControllerBase
 {
     private readonly UserService _userService;
@@ -17,6 +16,21 @@ public class UserController : ControllerBase
         _userService = userService;
     }
 
+    [Authorize]
+    [HttpGet("/api/user/current")]
+    public async Task<IActionResult> GetCurrent()
+    {
+        try
+        {
+            return Ok(await _userService.GetCurrentUser());
+        }
+        catch (Exception e)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred");
+        }
+    }
+
+    [Authorize]
     [HttpPost("/api/user/logout")]
     public async Task<IActionResult> Logout()
     {
@@ -31,6 +45,7 @@ public class UserController : ControllerBase
         }
     }
 
+    [AllowAnonymous]
     [HttpPost("/api/user")]
     public async Task<IActionResult> CreateUser([FromBody] CreateUser user)
     {
@@ -50,6 +65,7 @@ public class UserController : ControllerBase
         return Created();
     }
 
+    [AllowAnonymous]
     [HttpPost("/api/user/login")]
     public async Task<IActionResult> Login([FromBody] LoginUser loginUser)
     {

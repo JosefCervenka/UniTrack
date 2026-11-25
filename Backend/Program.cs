@@ -10,7 +10,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddValidatorsFromAssemblyContaining<CreateUserValidator>();
 
 builder.Services.AddControllers();
-builder.Services.AddScoped<UserService>();
+
+builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddTransient<UserService>();
+builder.Services.AddTransient<LostItemService>();
+
 builder.Services.AddSingleton<HashService>();
 builder.Services.AddSingleton<JwtService>();
 

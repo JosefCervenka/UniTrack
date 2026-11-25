@@ -17,8 +17,8 @@ export class AppComponent {
   constructor(readonly userService: UserServiceService, private router: Router) {
   }
 
-  logout(): void {
-    this.userService.logout();
-    this.router.navigate(['/login']);
+  async logout(): Promise<void> {
+    await this.userService.logout();
+    await this.router.navigate(['/login']);
   }
 }

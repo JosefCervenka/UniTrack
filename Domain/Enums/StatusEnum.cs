@@ -2,8 +2,8 @@
 
 public enum StatusEnum
 {
-    Lost,
-    Found,
-    Returned,
-    Expired,
+    Lost = 1,
+    Found = 2,
+    Returned = 3,
+    Expired = 4,
 }

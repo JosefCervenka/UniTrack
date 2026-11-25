@@ -1,6 +1,6 @@
 ﻿namespace Domain;
 
-public class Item : BaseEntity
+public class LostItem : BaseEntity
 {
     public Guid OwnerId { get; set; }
     
@@ -12,5 +12,9 @@ public class Item : BaseEntity
 
     public string LostLocation { get; set; }
 
-    public string Status { get; set; }
+    public int StatusId { get; set; }
+    
+    public Status Status { get; set; }
+    
+    public byte[] Image { get; set; }
 }
