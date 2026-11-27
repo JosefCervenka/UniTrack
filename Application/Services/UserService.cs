@@ -40,6 +40,19 @@ public class UserService
         return  _jwtService.GenerateToken(loginUser.Email, "USER");
     }
 
+    public async Task<ReadUser?> GetUser(Guid id)
+    {
+        return _context!.User!.Select(x => new ReadUser
+        {
+            UserName = x!.UserName,
+            Email = x!.Email,
+            Surname = x!.Surname,
+            GivenName = x!.GivenName,
+            Id = x!.Id,
+            
+        })!.FirstOrDefault(x => x.Id == id);
+    }
+
     public async Task<ReadUser?> GetCurrentUser()
     {
         var claims = _httpContextAccessor?.HttpContext?.User;

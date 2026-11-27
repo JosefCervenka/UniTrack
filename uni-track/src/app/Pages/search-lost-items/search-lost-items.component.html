@@ -1,0 +1,63 @@
+<main class="search-page">
+  <header class="page-header">
+    <h1>Find a lost item</h1>
+    <p>Describe what you are looking for and we’ll find the closest matches.</p>
+  </header>
+
+  <form class="search-form" (ngSubmit)="onSearch()">
+    <mat-form-field appearance="outline">
+      <mat-label>What are you looking for?</mat-label>
+      <input
+        matInput
+        name="search"
+        [(ngModel)]="search"
+        placeholder="For example, blue water bottle near the library"
+        required
+      />
+    </mat-form-field>
+    <button mat-flat-button type="submit" [disabled]="loading() || !search.trim()">
+      Search
+    </button>
+  </form>
+
+  @if (loading() && items().length === 0) {
+    <p class="status" role="status">Searching lost items…</p>
+  }
+
+  @if (errors().length > 0) {
+    <section class="error-message" role="alert">
+      @for (error of errors(); track $index) {
+        <p>{{ error.message }}</p>
+      }
+    </section>
+  }
+
+  @if (hasSearched() && !loading() && errors().length === 0 && items().length === 0) {
+    <p class="status">No matching lost items found. Try a different description.</p>
+  }
+
+  @if (items().length > 0) {
+    <section class="results" aria-label="Lost item search results">
+      @for (item of items(); track item.id) {
+        <mat-card class="item-card">
+          <mat-card-header>
+            <mat-card-title>{{ item.name }}</mat-card-title>
+            <mat-card-subtitle>{{ item.lostLocation || 'Location not provided' }}</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <p>{{ item.description }}</p>
+            <p class="owner">Reported by {{ item.givenName }} {{ item.surname }}</p>
+          </mat-card-content>
+        </mat-card>
+      }
+    </section>
+  }
+
+  @if (hasMore()) {
+    <div class="load-more">
+      <button mat-stroked-button type="button" (click)="loadMore()" [disabled]="loading()">
+        {{ loading() ? 'Loading…' : 'Load more' }}
+      </button>
+    </div>
+  }
+</main>

@@ -1,9 +1,15 @@
-﻿using Application.Dtos;
+﻿using System.Security.Claims;
+using System.Text;
+using Application.Dtos;
+using Application.Validations;
 using Domain;
 using Domain.Enums;
 using FluentValidation;
 using Infrastructure.Contexts;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using Pgvector;
+using Pgvector.EntityFrameworkCore;
 
 namespace Application.Services;
 
@@ -13,19 +19,91 @@ public class LostItemService
     private readonly IValidator<CreateLostItem> _createLostItemValidator;
     private readonly IValidator<UpdateLostItem> _updateLostItemValidator;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly EmbeddingService _embeddingService;
+    private readonly SearchLostItemValidator _searchLostItemValidator;
 
     public LostItemService(AppDbContext context, IValidator<CreateLostItem> createLostItemValidator,
-        IHttpContextAccessor httpContextAccessor, IValidator<UpdateLostItem> updateLostItemValidator)
+        IHttpContextAccessor httpContextAccessor, IValidator<UpdateLostItem> updateLostItemValidator,
+        EmbeddingService embeddingService, SearchLostItemValidator searchLostItemValidator)
     {
         _context = context;
         _createLostItemValidator = createLostItemValidator;
         _httpContextAccessor = httpContextAccessor;
         _updateLostItemValidator = updateLostItemValidator;
+        _embeddingService = embeddingService;
+        _searchLostItemValidator = searchLostItemValidator;
     }
-    
+
+    private async Task<Vector> Embedding(LostItem lostItem)
+    {
+        var stringBuilder = new StringBuilder();
+        stringBuilder.AppendLine(lostItem.Name);
+        stringBuilder.AppendLine(lostItem.Desctiption);
+        stringBuilder.AppendLine(lostItem.LostLocation);
+        var stringForEmbedding = stringBuilder.ToString();
+        return await _embeddingService.EmbedToPgVectorAsync(stringForEmbedding);
+    }
+
+    private static ReadLostItem MapToReadLostItem(LostItem lostItem)
+    {
+        return new ReadLostItem
+        {
+            Id = lostItem.Id,
+            Name = lostItem.Name,
+            Description = lostItem.Desctiption,
+            LostLocation = lostItem.LostLocation,
+            GivenName = lostItem.Owner.GivenName,
+            Surname = lostItem.Owner.Surname,
+            OwnerId = lostItem.OwnerId
+        };
+    }
+
+    public async Task<ReadLostItem> GetAsync(Guid id)
+    {
+        await _searchLostItemValidator.ValidateAndThrowAsync(new SearchLostItem()
+        {
+            Id = id
+        });
+
+        var lostItem = await _context.LostItem
+            .Include(x => x.Owner)
+            .FirstAsync(x => x.Id == id);
+
+        return MapToReadLostItem(lostItem);
+    }
+
+    public async Task DeleteAsync(Guid id)
+    {
+        await _searchLostItemValidator.ValidateAndThrowAsync(new SearchLostItem()
+        {
+            Id = id
+        });
+
+        var lostItem = await _context.LostItem
+            .FirstAsync(x => x.Id == id);
+
+        _context.LostItem.Remove(lostItem);
+
+        await _context.SaveChangesAsync();
+    }
+
+
+    public async Task<ReadLostItem[]> GetAllAsync(string search, int take, int skip)
+    {
+        var searchVector = await _embeddingService.EmbedToPgVectorAsync(search);
+
+        var lostItems = await _context.LostItem
+            .Include(x => x.Owner)
+            .OrderBy(x => x.Embedding!.CosineDistance(searchVector))
+            .Skip(skip).Take(take)
+            .ToArrayAsync();
+
+        return lostItems.Select(MapToReadLostItem).ToArray();
+    }
+
     public async Task UpdateAsync(UpdateLostItem updateLostItem)
     {
-        _updateLostItemValidator.ValidateAndThrow(updateLostItem);
+        await _updateLostItemValidator.ValidateAndThrowAsync(updateLostItem);
 
         var email = _httpContextAccessor!.HttpContext!.User!.Identity!.Name;
 
@@ -36,25 +114,28 @@ public class LostItemService
 
         if (ownerId is null)
             throw new Exception("User not found");
-        
+
         var item = _context.LostItem.FirstOrDefault(X => X.Id == updateLostItem.Id);
-        
-        if(ownerId != item!.OwnerId)
+
+        if (ownerId != item!.OwnerId)
             throw new Exception("User not found");
-        
+
         item.Name = updateLostItem.Name;
         item.LostLocation = updateLostItem.LostLocation;
         item.Desctiption = updateLostItem.Description;
         item.StatusId = (int)StatusEnum.Lost;
-        
+        item.Embedding = await Embedding(item);
+
         await _context.SaveChangesAsync();
     }
 
     public async Task CreateAsync(CreateLostItem createLostItem)
     {
-        _createLostItemValidator.ValidateAndThrow(createLostItem);
+        await _createLostItemValidator.ValidateAndThrowAsync(createLostItem);
 
-        var email = _httpContextAccessor!.HttpContext!.User!.Identity!.Name;
+        var principal = _httpContextAccessor?.HttpContext?.User;
+
+        var email = principal?.FindFirst(ClaimTypes.Email)?.Value;
 
         if (email is null)
             throw new Exception("User not found");
@@ -69,11 +150,14 @@ public class LostItemService
             Name = createLostItem.Name,
             LostLocation = createLostItem.LostLocation,
             Desctiption = createLostItem.Description,
+            Image = createLostItem.Image ?? Array.Empty<byte>(),
             StatusId = (int)StatusEnum.Lost,
             OwnerId = (Guid)ownerId
         };
 
-        _context.LostItem.Add(new LostItem());
+        lostItem.Embedding = await Embedding(lostItem);
+
+        _context.LostItem.Add(lostItem);
 
         await _context.SaveChangesAsync();
     }

@@ -1,4 +1,5 @@
 ﻿using Domain;
+using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Contexts;
@@ -27,5 +28,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 .HasMethod("hnsw")
                 .HasOperators("vector_cosine_ops");
         });
+        
+        modelBuilder.Entity<Status>().HasData(
+            new Status { Id = (int)StatusEnum.Lost, DisplayName = "Lost" },
+            new Status { Id = (int)StatusEnum.Found, DisplayName = "Found" },
+            new Status { Id = (int)StatusEnum.Returned, DisplayName = "Returned" },
+            new Status { Id = (int)StatusEnum.Expired, DisplayName = "Expired" }
+        );
     }
 }

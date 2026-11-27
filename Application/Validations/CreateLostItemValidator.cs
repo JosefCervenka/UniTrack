@@ -29,9 +29,6 @@ public class CreateLostItemValidator : AbstractValidator<CreateLostItem>
                 .WithState(x => new { HttpStatus = 400, Field = nameof(x.Description), Reason = "MaxLength" });
 
         RuleFor(x => x.LostLocation)
-            .NotEmpty().WithMessage("Lost location is required.")
-                .WithErrorCode("400")
-                .WithState(x => new { HttpStatus = 400, Field = nameof(x.LostLocation), Reason = "Required" })
             .MaximumLength(300).WithMessage("Lost location must not exceed 300 characters.")
                 .WithErrorCode("400")
                 .WithState(x => new { HttpStatus = 400, Field = nameof(x.LostLocation), Reason = "MaxLength" });

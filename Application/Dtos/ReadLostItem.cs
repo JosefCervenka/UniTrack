@@ -8,9 +8,7 @@ public class ReadLostItem
 
     public required string Description { get; set; }
 
-    public required string LostLocation { get; set; }
-
-    public byte[]? Image { get; set; }
+    public string? LostLocation { get; set; }
     
     public required string GivenName { get; set; }
 

@@ -16,6 +16,42 @@ public class LostItemController : ControllerBase
         _lostItemService = lostItemService;
     }
 
+    [HttpGet("/api/lost-items")]
+    public async Task<IActionResult> GetAsync([FromQuery] int skip, [FromQuery] int take, [FromQuery] string search)
+    {
+        try
+        {
+            var result = await _lostItemService.GetAllAsync(search, take, skip);
+            return Ok(result);
+        }
+        catch (ValidationException e)
+        {
+            return ErrorAdapter.ToActionResult(e);
+        }
+        catch
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred");
+        }
+    }
+
+    [HttpDelete("/api/lost-items/{id:guid}")]
+    public async Task<IActionResult> DeleteAsync([FromRoute] Guid id)
+    {
+        try
+        {
+            await _lostItemService.DeleteAsync(id);
+            return NoContent();
+        }
+        catch (ValidationException e)
+        {
+            return ErrorAdapter.ToActionResult(e);
+        }
+        catch
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred");
+        }
+    }
+
     [HttpPut("/api/lost-items")]
     public async Task<IActionResult> UpdateAsync([FromBody] UpdateLostItem updateLostItem)
     {

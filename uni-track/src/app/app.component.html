@@ -8,6 +8,8 @@
           @if (userService.currentUser(); as user) {
             <span class="user-badge">{{ user.givenName || user.userName }}</span>
           }
+          <a mat-button routerLink="/search-lost-items" routerLinkActive="active" ariaCurrentWhenActive="page">Find items</a>
+          <a mat-button routerLink="/create-lost-item" routerLinkActive="active" ariaCurrentWhenActive="page">Report lost item</a>
           <button mat-stroked-button type="button" (click)="logout()">Log out</button>
         } @else {
           <a mat-button routerLink="/login" routerLinkActive="active" ariaCurrentWhenActive="page">Sign in</a>

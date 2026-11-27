@@ -12,7 +12,7 @@ public class LostItem : BaseEntity
 
     public string Desctiption { get; set; }
 
-    public string LostLocation { get; set; }
+    public string? LostLocation { get; set; }
 
     public int StatusId { get; set; }
     

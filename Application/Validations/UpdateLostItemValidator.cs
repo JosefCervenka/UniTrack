@@ -16,7 +16,7 @@ public class UpdateLostItemValidator : AbstractValidator<UpdateLostItem>
             .NotEmpty().WithMessage("Item id is required.")
                 .WithErrorCode("400")
                 .WithState(x => new { HttpStatus = 400, Field = nameof(x.Id), Reason = "Required" })
-            .Must(id => _context.LostItem.Any(li => li.Id == id))
+            .Must(id => _context.LostItem.Any(x => x.Id == id))
                 .WithMessage("Item with the given id does not exist.")
                 .WithErrorCode("404")
                 .WithState(x => new { HttpStatus = 404, Field = nameof(x.Id), Reason = "NotFound" });
