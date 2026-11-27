@@ -16,6 +16,12 @@ public class LostItemController : ControllerBase
         _lostItemService = lostItemService;
     }
 
+    [HttpGet("/api/lost-items/{id:guid}/picture")]
+    public async Task<IActionResult> GetPictureAsync([FromRoute] Guid id)
+    {
+        return Ok();
+    }
+
     [HttpGet("/api/lost-items")]
     public async Task<IActionResult> GetAsync([FromQuery] int skip, [FromQuery] int take, [FromQuery] string search)
     {

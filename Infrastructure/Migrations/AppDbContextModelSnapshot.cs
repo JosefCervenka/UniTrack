@@ -75,7 +75,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("vector(384)");
 
                     b.Property<byte[]>("Image")
-                        .IsRequired()
                         .HasColumnType("bytea");
 
                     b.Property<string>("LostLocation")

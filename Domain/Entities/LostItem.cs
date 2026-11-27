@@ -18,7 +18,7 @@ public class LostItem : BaseEntity
     
     public Status Status { get; set; }
     
-    public byte[] Image { get; set; }
+    public byte[]? Image { get; set; }
     
     public Vector? Embedding { get; set; }
 }

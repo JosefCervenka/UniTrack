@@ -58,6 +58,20 @@ public class LostItemService
         };
     }
 
+    public async Task<byte[]?> GetPictureAsync(Guid id)
+    {
+        await _searchLostItemValidator.ValidateAndThrowAsync(new SearchLostItem()
+        {
+            Id = id
+        });
+
+        var image = await  _context.LostItem
+            .Select(x => new { x.Id, x.Image })
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        return image?.Image;
+    }
+
     public async Task<ReadLostItem> GetAsync(Guid id)
     {
         await _searchLostItemValidator.ValidateAndThrowAsync(new SearchLostItem()
@@ -150,7 +164,7 @@ public class LostItemService
             Name = createLostItem.Name,
             LostLocation = createLostItem.LostLocation,
             Desctiption = createLostItem.Description,
-            Image = createLostItem.Image ?? Array.Empty<byte>(),
+            Image = createLostItem.Image,
             StatusId = (int)StatusEnum.Lost,
             OwnerId = (Guid)ownerId
         };
