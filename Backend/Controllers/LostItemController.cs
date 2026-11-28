@@ -19,7 +19,36 @@ public class LostItemController : ControllerBase
     [HttpGet("/api/lost-items/{id:guid}/picture")]
     public async Task<IActionResult> GetPictureAsync([FromRoute] Guid id)
     {
-        return Ok();
+        try
+        {
+            var image = await _lostItemService.GetPictureAsync(id);
+            if (image is null || image.Length == 0)
+                return NotFound();
+
+            return File(image, GetPictureContentType(image));
+        }
+        catch (ValidationException e)
+        {
+            return ErrorAdapter.ToActionResult(e);
+        }
+    }
+
+    private static string GetPictureContentType(byte[] image)
+    {
+        if (image.AsSpan().StartsWith(new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A }))
+            return "image/png";
+        if (image.AsSpan().StartsWith(new byte[] { 0xFF, 0xD8, 0xFF }))
+            return "image/jpeg";
+        if (image.AsSpan().StartsWith("GIF"u8))
+            return "image/gif";
+        if (image.Length >= 12 &&
+            image.AsSpan(0, 4).SequenceEqual("RIFF"u8) &&
+            image.AsSpan(8, 4).SequenceEqual("WEBP"u8))
+            return "image/webp";
+        if (image.AsSpan().StartsWith("BM"u8))
+            return "image/bmp";
+
+        return "application/octet-stream";
     }
 
     [HttpGet("/api/lost-items")]

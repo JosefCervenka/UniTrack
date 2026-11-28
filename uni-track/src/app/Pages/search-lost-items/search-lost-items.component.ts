@@ -26,6 +26,7 @@ export class SearchLostItemsComponent {
   readonly loading = signal(false);
   readonly hasSearched = signal(false);
   readonly hasMore = signal(false);
+  readonly unavailablePictures = signal<ReadonlySet<string>>(new Set());
   private offset = 0;
   private activeSearch = '';
 
@@ -50,6 +51,10 @@ export class SearchLostItemsComponent {
     }
 
     await this.loadItems(true);
+  }
+
+  hidePicture(id: string): void {
+    this.unavailablePictures.update(current => new Set(current).add(id));
   }
 
   private async loadItems(append: boolean): Promise<void> {

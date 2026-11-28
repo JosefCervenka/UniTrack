@@ -21,10 +21,14 @@ public class LostItemService
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly EmbeddingService _embeddingService;
     private readonly SearchLostItemValidator _searchLostItemValidator;
+    private readonly SearchLostItemPictureValidator _searchLostItemPictureValidator;
+    private readonly DeleteLostItemValidator _deleteLostItemValidator;
 
     public LostItemService(AppDbContext context, IValidator<CreateLostItem> createLostItemValidator,
         IHttpContextAccessor httpContextAccessor, IValidator<UpdateLostItem> updateLostItemValidator,
-        EmbeddingService embeddingService, SearchLostItemValidator searchLostItemValidator)
+        EmbeddingService embeddingService, SearchLostItemValidator searchLostItemValidator,
+        SearchLostItemPictureValidator searchLostItemPictureValidator,
+        DeleteLostItemValidator deleteLostItemValidator)
     {
         _context = context;
         _createLostItemValidator = createLostItemValidator;
@@ -32,6 +36,8 @@ public class LostItemService
         _updateLostItemValidator = updateLostItemValidator;
         _embeddingService = embeddingService;
         _searchLostItemValidator = searchLostItemValidator;
+        _searchLostItemPictureValidator = searchLostItemPictureValidator;
+        _deleteLostItemValidator = deleteLostItemValidator;
     }
 
     private async Task<Vector> Embedding(LostItem lostItem)
@@ -60,7 +66,7 @@ public class LostItemService
 
     public async Task<byte[]?> GetPictureAsync(Guid id)
     {
-        await _searchLostItemValidator.ValidateAndThrowAsync(new SearchLostItem()
+        await _searchLostItemPictureValidator.ValidateAndThrowAsync(new SearchLostItem()
         {
             Id = id
         });
@@ -88,7 +94,7 @@ public class LostItemService
 
     public async Task DeleteAsync(Guid id)
     {
-        await _searchLostItemValidator.ValidateAndThrowAsync(new SearchLostItem()
+        await _deleteLostItemValidator.ValidateAndThrowAsync(new SearchLostItem()
         {
             Id = id
         });
@@ -119,7 +125,7 @@ public class LostItemService
     {
         await _updateLostItemValidator.ValidateAndThrowAsync(updateLostItem);
 
-        var email = _httpContextAccessor!.HttpContext!.User!.Identity!.Name;
+        var email = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Email)?.Value;
 
         if (email is null)
             throw new Exception("User not found");

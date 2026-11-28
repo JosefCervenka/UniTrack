@@ -11,6 +11,8 @@ using SmartComponents.LocalEmbeddings;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddValidatorsFromAssemblyContaining<CreateUserValidator>();
+builder.Services.AddScoped<SearchLostItemValidator>();
+builder.Services.AddScoped<SearchLostItemPictureValidator>();
 
 builder.Services.AddControllers();
 
@@ -56,8 +58,8 @@ if (builder.Configuration.GetValue<bool>("StartAngular"))
     });
     app.Lifetime.ApplicationStopping.Register(angularDevServer.Stop);
 }
-app.UseMiddleware<JwtMiddleware>();
 app.UseAuthentication();
+app.UseAuthorization();
 app.UseAuthorization();
 app.UseHttpsRedirection();
 app.MapControllers();

@@ -24,43 +24,6 @@ namespace Infrastructure.Migrations
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "vector");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Domain.FoundItem", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Desctiption")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("FinderId")
-                        .HasColumnType("uuid");
-
-                    b.Property<byte[]>("Image")
-                        .IsRequired()
-                        .HasColumnType("bytea");
-
-                    b.Property<string>("LostLocation")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("StatusId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FinderId");
-
-                    b.HasIndex("StatusId");
-
-                    b.ToTable("FoundItem");
-                });
-
             modelBuilder.Entity("Domain.LostItem", b =>
                 {
                     b.Property<Guid>("Id")
@@ -176,25 +139,6 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("User");
-                });
-
-            modelBuilder.Entity("Domain.FoundItem", b =>
-                {
-                    b.HasOne("Domain.User", "Finder")
-                        .WithMany()
-                        .HasForeignKey("FinderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Status", "Status")
-                        .WithMany()
-                        .HasForeignKey("StatusId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Finder");
-
-                    b.Navigation("Status");
                 });
 
             modelBuilder.Entity("Domain.LostItem", b =>

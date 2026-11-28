@@ -40,6 +40,15 @@
     <section class="results" aria-label="Lost item search results">
       @for (item of items(); track item.id) {
         <mat-card class="item-card">
+          @if (!unavailablePictures().has(item.id)) {
+            <img
+              class="item-picture"
+              [src]="'/api/lost-items/' + item.id + '/picture'"
+              [alt]="'Photo of ' + item.name"
+              loading="lazy"
+              (error)="hidePicture(item.id)"
+            />
+          }
           <mat-card-header>
             <mat-card-title>{{ item.name }}</mat-card-title>
             <mat-card-subtitle>{{ item.lostLocation || 'Location not provided' }}</mat-card-subtitle>
