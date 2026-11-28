@@ -60,7 +60,8 @@ public class LostItemService
             LostLocation = lostItem.LostLocation,
             GivenName = lostItem.Owner.GivenName,
             Surname = lostItem.Owner.Surname,
-            OwnerId = lostItem.OwnerId
+            OwnerId = lostItem.OwnerId,
+            Status = lostItem.Status.DisplayName
         };
     }
 
@@ -87,6 +88,7 @@ public class LostItemService
 
         var lostItem = await _context.LostItem
             .Include(x => x.Owner)
+            .Include(x => x.Status)
             .FirstAsync(x => x.Id == id);
 
         return MapToReadLostItem(lostItem);
@@ -108,13 +110,15 @@ public class LostItemService
     }
 
 
-    public async Task<ReadLostItem[]> GetAllAsync(string search, int take, int skip)
+    public async Task<ReadLostItem[]> GetAllAsync(string search, int take, int skip, int statusId = (int)StatusEnum.Lost)
     {
         var searchVector = await _embeddingService.EmbedToPgVectorAsync(search);
 
         var lostItems = await _context.LostItem
             .Include(x => x.Owner)
+            .Include(x => x.Status)
             .OrderBy(x => x.Embedding!.CosineDistance(searchVector))
+            .Where(x => x.StatusId == statusId)
             .Skip(skip).Take(take)
             .ToArrayAsync();
 

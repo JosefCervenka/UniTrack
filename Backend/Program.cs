@@ -1,4 +1,3 @@
-using Application.Middlewares;
 using Application.Services;
 using Application.Validations;
 using Backend.Authentication;
@@ -25,12 +24,12 @@ builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddTransient<UserService>();
 builder.Services.AddTransient<LostItemService>();
+builder.Services.AddTransient<StatusService>();
 
 builder.Services.AddSingleton<HashService>();
 builder.Services.AddSingleton<JwtService>();
 builder.Services.AddSingleton<EmbeddingService>();
 builder.Services.AddSingleton<LocalEmbedder>();
-builder.Services.AddTransient<JwtMiddleware>();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
                        ?? throw new InvalidOperationException("Not fount connection string 'DefaultConnection'.");

@@ -4,5 +4,5 @@ public class CodeListEntity
 {
     public int Id { get; set; }
 
-    public string DisplayName { get; set; }
+    public required string DisplayName { get; set; }
 }
