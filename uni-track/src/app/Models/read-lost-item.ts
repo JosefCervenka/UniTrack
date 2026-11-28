@@ -6,4 +6,7 @@ export interface ReadLostItem {
   givenName: string;
   surname: string;
   ownerId: string;
+  statusId: number;
+  status: string;
+  createdAt: string;
 }

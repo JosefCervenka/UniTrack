@@ -61,7 +61,9 @@ public class LostItemService
             GivenName = lostItem.Owner.GivenName,
             Surname = lostItem.Owner.Surname,
             OwnerId = lostItem.OwnerId,
-            Status = lostItem.Status.DisplayName
+            StatusId = lostItem.StatusId,
+            Status = lostItem.Status.DisplayName,
+            CreatedAt = lostItem.CreatedAt
         };
     }
 
@@ -147,7 +149,7 @@ public class LostItemService
         item.Name = updateLostItem.Name;
         item.LostLocation = updateLostItem.LostLocation;
         item.Desctiption = updateLostItem.Description;
-        item.StatusId = (int)StatusEnum.Lost;
+        item.StatusId = updateLostItem.StatusId;
         item.Embedding = await Embedding(item);
 
         await _context.SaveChangesAsync();
@@ -175,8 +177,9 @@ public class LostItemService
             LostLocation = createLostItem.LostLocation,
             Desctiption = createLostItem.Description,
             Image = createLostItem.Image,
-            StatusId = (int)StatusEnum.Lost,
-            OwnerId = (Guid)ownerId
+            StatusId = createLostItem.StatusId,
+            OwnerId = (Guid)ownerId,
+            CreatedAt = DateTime.UtcNow
         };
 
         lostItem.Embedding = await Embedding(lostItem);

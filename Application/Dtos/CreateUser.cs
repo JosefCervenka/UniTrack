@@ -2,7 +2,7 @@
 
 public class CreateUser
 {
-    public string UserName { get; set; }
+    public  string UserName { get; set; }
 
     public string GivenName { get; set; }
 

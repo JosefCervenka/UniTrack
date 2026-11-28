@@ -14,7 +14,11 @@ public class ReadLostItem
 
     public required string Surname { get; set; }
 
+    public required int StatusId { get; set; }
+
     public required string Status { get; set; }
+
+    public required DateTime CreatedAt { get; set; }
 
     public required Guid OwnerId { get; set; }
 }

@@ -1,3 +1,4 @@
+using Application.Middlewares;
 using Application.Services;
 using Application.Validations;
 using Backend.Authentication;
@@ -25,6 +26,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<UserService>();
 builder.Services.AddTransient<LostItemService>();
 builder.Services.AddTransient<StatusService>();
+builder.Services.AddTransient<JwtMiddleware>();
 
 builder.Services.AddSingleton<HashService>();
 builder.Services.AddSingleton<JwtService>();
@@ -57,6 +59,7 @@ if (builder.Configuration.GetValue<bool>("StartAngular"))
     });
     app.Lifetime.ApplicationStopping.Register(angularDevServer.Stop);
 }
+app.UseMiddleware<JwtMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseAuthorization();

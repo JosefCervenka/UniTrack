@@ -56,6 +56,17 @@ public class UpdateLostItemValidator : AbstractValidator<UpdateLostItem>
                 .WithErrorCode("400")
                 .WithState(x => new { HttpStatus = 400, Field = nameof(x.LostLocation), Reason = "MaxLength" });
 
+        RuleFor(x => x.StatusId)
+            .Cascade(CascadeMode.Stop)
+            .GreaterThan(0).WithMessage("A valid status is required.")
+                .WithErrorCode("400")
+                .WithState(x => new { HttpStatus = 400, Field = nameof(x.StatusId), Reason = "Required" })
+            .MustAsync(async (statusId, cancellationToken) =>
+                await _context.Status.AnyAsync(status => status.Id == statusId, cancellationToken))
+                .WithMessage("The selected status does not exist.")
+                .WithErrorCode("400")
+                .WithState(x => new { HttpStatus = 400, Field = nameof(x.StatusId), Reason = "NotFound" });
+
         RuleFor(x => x.Image)
             .Must(img => img is null || img.Length > 0)
                 .WithMessage("Image cannot be empty.")

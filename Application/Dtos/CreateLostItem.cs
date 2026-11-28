@@ -8,5 +8,7 @@ public class CreateLostItem
 
     public required string LostLocation { get; set; }
 
+    public required int StatusId { get; set; }
+    
     public byte[]? Image { get; set; }
 }

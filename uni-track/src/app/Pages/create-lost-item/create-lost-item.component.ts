@@ -5,17 +5,18 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
+import {StatusDropdownComponent} from '../../Components/status-dropdown/status-dropdown.component';
 import {ApiValidationError} from '../../Models/error-model';
 import {CreateLostItem} from '../../Models/create-lost-item';
 import {LostItemServiceService} from '../../Services/lost-item-service.service';
 
-const ITEM_FIELDS: (keyof CreateLostItem)[] = ['name', 'description', 'lostLocation'];
+const ITEM_FIELDS: (keyof CreateLostItem)[] = ['name', 'description', 'lostLocation', 'statusId'];
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 
 @Component({
   selector: 'app-create-lost-item',
   standalone: true,
-  imports: [FormsModule, MatButtonModule, MatCardModule, MatFormFieldModule, MatInputModule],
+  imports: [FormsModule, MatButtonModule, MatCardModule, MatFormFieldModule, MatInputModule, StatusDropdownComponent],
   templateUrl: './create-lost-item.component.html',
   styleUrl: './create-lost-item.component.scss'
 })
@@ -27,6 +28,7 @@ export class CreateLostItemComponent {
     name: '',
     description: '',
     lostLocation: '',
+    statusId: 1,
     image: null
   };
   readonly errors = signal<ApiValidationError[]>([]);

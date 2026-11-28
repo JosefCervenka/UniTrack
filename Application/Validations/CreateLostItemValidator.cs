@@ -1,6 +1,8 @@
 ﻿using Application.Dtos;
+using Domain.Enums;
 using FluentValidation;
 using Infrastructure.Contexts;
+using Microsoft.EntityFrameworkCore;
 
 namespace Application.Validations;
 
@@ -32,6 +34,21 @@ public class CreateLostItemValidator : AbstractValidator<CreateLostItem>
             .MaximumLength(300).WithMessage("Lost location must not exceed 300 characters.")
                 .WithErrorCode("400")
                 .WithState(x => new { HttpStatus = 400, Field = nameof(x.LostLocation), Reason = "MaxLength" });
+
+        RuleFor(x => x.StatusId)
+            .Cascade(CascadeMode.Stop)
+            .GreaterThan(0).WithMessage("A valid status is required.")
+                .WithErrorCode("400")
+                .WithState(x => new { HttpStatus = 400, Field = nameof(x.StatusId), Reason = "Required" })
+            .Must(statusId => statusId == (int)StatusEnum.Lost || statusId == (int)StatusEnum.Found)
+                .WithMessage("New items can only have the Lost or Found status.")
+                .WithErrorCode("400")
+                .WithState(x => new { HttpStatus = 400, Field = nameof(x.StatusId), Reason = "InvalidStatus" })
+            .MustAsync(async (statusId, cancellationToken) =>
+                await _context.Status.AnyAsync(status => status.Id == statusId, cancellationToken))
+                .WithMessage("The selected status does not exist.")
+                .WithErrorCode("400")
+                .WithState(x => new { HttpStatus = 400, Field = nameof(x.StatusId), Reason = "NotFound" });
 
         RuleFor(x => x.Image)
             .Must(img => img is null || img.Length > 0)

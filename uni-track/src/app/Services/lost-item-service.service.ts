@@ -54,6 +54,7 @@ export class LostItemServiceService {
     formData.append('Name', item.name);
     formData.append('Description', item.description);
     formData.append('LostLocation', item.lostLocation);
+    formData.append('StatusId', item.statusId.toString());
     if (item.image) {
       formData.append('Image', item.image);
     }

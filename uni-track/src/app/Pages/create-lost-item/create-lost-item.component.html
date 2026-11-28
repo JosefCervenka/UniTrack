@@ -36,6 +36,16 @@
         }
       </mat-form-field>
 
+      <app-status-dropdown
+        [selectedStatusId]="model.statusId"
+        [allowedStatusIds]="[1, 2]"
+        [disabled]="submitting()"
+        (selectedStatusIdChange)="model.statusId = $event ?? 0"
+      />
+      @if (fieldError('statusId'); as message) {
+        <p class="error-msg">{{ message }}</p>
+      }
+
       <div class="image-field">
         <label for="item-image">Photo (optional, max 5 MB)</label>
         <input

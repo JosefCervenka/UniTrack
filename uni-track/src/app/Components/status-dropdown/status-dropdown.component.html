@@ -1,0 +1,23 @@
+<mat-form-field appearance="outline">
+  <mat-label>Status (visible to users)</mat-label>
+  <mat-select
+    [ngModel]="selectedStatusId"
+    (ngModelChange)="onSelectionChange($event)"
+    [disabled]="disabled || loading() || statuses().length === 0"
+    aria-describedby="status-visibility-hint"
+  >
+    <mat-option [value]="null">Choose a status</mat-option>
+    @for (status of statuses(); track status.id) {
+      <mat-option [value]="status.id">{{ status.displayName }}</mat-option>
+    }
+  </mat-select>
+  @if (loading()) {
+    <mat-hint>Loading statuses…</mat-hint>
+  } @else {
+    @if (error(); as message) {
+      <mat-hint class="error-message">{{ message }}</mat-hint>
+    } @else {
+      <mat-hint id="status-visibility-hint">Other users will be able to see this status.</mat-hint>
+    }
+  }
+</mat-form-field>

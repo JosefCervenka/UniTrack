@@ -4,6 +4,7 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
+import {DatePipe} from '@angular/common';
 import {ApiValidationError} from '../../Models/error-model';
 import {ReadLostItem} from '../../Models/read-lost-item';
 import {LostItemServiceService} from '../../Services/lost-item-service.service';
@@ -13,7 +14,7 @@ const PAGE_SIZE = 12;
 @Component({
   selector: 'app-search-lost-items',
   standalone: true,
-  imports: [FormsModule, MatButtonModule, MatCardModule, MatFormFieldModule, MatInputModule],
+  imports: [DatePipe, FormsModule, MatButtonModule, MatCardModule, MatFormFieldModule, MatInputModule],
   templateUrl: './search-lost-items.component.html',
   styleUrl: './search-lost-items.component.scss'
 })
